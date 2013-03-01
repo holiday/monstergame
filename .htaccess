@@ -1,4 +1,4 @@
 AuthType Basic
 AuthName "Restricted Files"
-AuthUserFile /Applications/MAMP/htdocs/monstergame/htpasswd
-Require user self
+AuthUserFile /var/www/monstergame.loc/public_html/htpasswd
+Require user root

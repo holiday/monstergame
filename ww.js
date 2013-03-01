@@ -22,7 +22,7 @@ function Stage(width, height, stageElementID){
 // initialize an instance of the game
 Stage.prototype.initialize=function(){
 	// Create a table of blank images, give each image an ID so we can reference it later
-	var s='<table>';
+	var s='<table id="gameGrid">';
 	// YOUR CODE GOES HERE
 	for(j=0; j < this.height; j++){
 		s+='<tr id="' + 'row_' + j + '">';
@@ -35,14 +35,27 @@ Stage.prototype.initialize=function(){
 
 	// Put it in the stageElementID (innerHTML)
 	document.getElementById(this.stageElementID).innerHTML = s;
+	this.grid = document.getElementById("gameGrid");
+
 	// Add the player to the center of the stage
-	var centerX = Math.floor(this.width / 2);
-	var centerY = Math.floor(this.height / 2);
-	
+	var row = Math.floor(this.width / 2);
+	var col = Math.floor(this.height / 2);
+
+	this.grid.rows[row].cells[col].innerHTML = '<img src="' + this.playerImageSrc + '">';
 	// Add walls around the outside of the stage, so actors can't leave the stage
+	//left and right walls
+	for(i=0; i < this.height; i++){
+		this.grid.rows[i].cells[0].innerHTML = '<img src="' + this.wallImageSrc + '" width="24" height="24">';
+		this.grid.rows[i].cells[this.width-1].innerHTML = '<img src="' + this.wallImageSrc + '" width="24" height="24">';
+	}
 
+	//top and bottom walls
+	for(i=1; i < this.width-1; i++){
+		this.grid.rows[0].cells[i].innerHTML = '<img src="' + this.wallImageSrc + '" width="24" height="24">';
+		this.grid.rows[this.height-1].cells[i].innerHTML = '<img src="' + this.wallImageSrc + '" width="24" height="24">';
+	}
 	// Add some Boxes to the stage
-
+	
 	// Add in some Monsters
 
 }
