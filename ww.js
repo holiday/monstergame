@@ -1,5 +1,5 @@
 // Stage
-function Stage(width, height, stageElementID){
+function Stage(width, height, numMonsters, stageElementID){
 	this.actors=[]; // all actors on this stage (monsters, player, boxes, ...)
 	this.player=null; // a special actor, the player
 
@@ -7,8 +7,14 @@ function Stage(width, height, stageElementID){
 	this.width=width;
 	this.height=height;
 
+	//probability distributions deciding the position (x,y) type 
+	this.monsters = 0.1; // 0-0.3
+	this.boxes = 0.4; // 0.3-0.6
+	this.blanks = 1; // 0.6-1
+
 	// the element containing the visual representation of the stage
 	this.stageElementID=stageElementID;
+	this.grid=null;
 
 	// take a look at the value of these to understand why we capture them this way
 	// an alternative would be to use 'new Image()'
@@ -22,12 +28,12 @@ function Stage(width, height, stageElementID){
 // initialize an instance of the game
 Stage.prototype.initialize=function(){
 	// Create a table of blank images, give each image an ID so we can reference it later
-	var s='<table id="gameGrid">';
+	var s='<table>';
 	// YOUR CODE GOES HERE
 	for(j=0; j < this.height; j++){
-		s+='<tr id="' + 'row_' + j + '">';
+		s+='<tr>';
 		for(i=0; i< this.width; i++){
-			s+='<td id="' + 'col_' + i + '"><img src="' + this.blankImageSrc + '"></td>';
+			s+='<td><img src="' + this.blankImageSrc + '" id="stage_' + j + '_' + i + '"></td>';
 		}
 		s+='</tr>';
 	}
@@ -35,32 +41,49 @@ Stage.prototype.initialize=function(){
 
 	// Put it in the stageElementID (innerHTML)
 	document.getElementById(this.stageElementID).innerHTML = s;
-	this.grid = document.getElementById("gameGrid");
+	this.grid = document.getElementById(this.stageElementID).getElementsByTagName('table')[0];
 
 	// Add the player to the center of the stage
 	var row = Math.floor(this.width / 2);
 	var col = Math.floor(this.height / 2);
 
-	this.grid.rows[row].cells[col].innerHTML = '<img src="' + this.playerImageSrc + '">';
+	this.addPlayer(new Player(this, col, row));
 	// Add walls around the outside of the stage, so actors can't leave the stage
 	//left and right walls
 	for(i=0; i < this.height; i++){
-		this.grid.rows[i].cells[0].innerHTML = '<img src="' + this.wallImageSrc + '" width="24" height="24">';
-		this.grid.rows[i].cells[this.width-1].innerHTML = '<img src="' + this.wallImageSrc + '" width="24" height="24">';
+		this.addActor(new Wall(this, 0, i));
+		this.addActor(new Wall(this, this.width-1, i));
 	}
 
 	//top and bottom walls
 	for(i=1; i < this.width-1; i++){
-		this.grid.rows[0].cells[i].innerHTML = '<img src="' + this.wallImageSrc + '" width="24" height="24">';
-		this.grid.rows[this.height-1].cells[i].innerHTML = '<img src="' + this.wallImageSrc + '" width="24" height="24">';
+		this.addActor(new Wall(this, i, 0));
+		this.addActor(new Wall(this, i, this.height-1));
 	}
-	// Add some Boxes to the stage
-	
-	// Add in some Monsters
 
+	// Add some Boxes to the stage
+	// Add in some Monsters
+	for(row=1; row<this.height-1; row++){
+		for(col=1; col<this.width-1;col++){
+			var rand = Math.random();
+			if(row == this.player.y && col == this.player.x){
+				continue;
+			}else if(rand <= this.monsters){
+				//make a monster
+				this.addActor(new Monster(this, col, row));
+			}else if(rand > this.monsters && rand <= this.boxes){
+				//make a box
+				this.addActor(new Box(this, col, row));
+			}else{
+				continue;
+			}
+		}
+	}
 }
 // Return the ID of a particular image, useful so we don't have to continually reconstruct IDs
-Stage.prototype.getStageId=function(x,y){ return ""; }
+Stage.prototype.getStageId=function(x,y){ 
+	return "stage_" + y + "_" + x; 
+}
 
 Stage.prototype.addPlayer=function(player){
 	this.addActor(player);
@@ -78,11 +101,15 @@ Stage.prototype.addActor=function(actor){
 
 Stage.prototype.removeActor=function(actor){
 	// Lookup javascript array manipulation (indexOf and splice).
+	var i = this.actors.indexOf(actor);
+	var actor = this.actors.splice(i, 1);
+	this.setImage(actor.x, actor.y, this.blankImageSrc);
+	return actor;
 }
 
 // Set the src of the image at stage location (x,y) to src
 Stage.prototype.setImage=function(x, y, src){
-
+	document.getElementById(this.getStageId(x,y)).src = src;
 }
 
 // Take one step in the animation of the game.  
@@ -96,6 +123,11 @@ Stage.prototype.step=function(){
 
 // return the first actor at coordinates (x,y) return null if there is no such actor
 Stage.prototype.getActor=function(x, y){
+	for(var i in this.actors){
+		if(this.actors[i].x == x && this.actors[i].y == y){
+			return this.actors[i];
+		}
+	}
 	return null;
 }
 // End Class Stage

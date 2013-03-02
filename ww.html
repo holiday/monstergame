@@ -11,7 +11,7 @@
 			// SOME GLUE CODE CONNECTING THIS PAGE TO THE STAGE
 			interval=null;
 			function setupGame(){
-				stage=new Stage(20,20,"stage");
+				stage=new Stage(20,20,10,"stage");
 				stage.initialize();
 			}
 			function startGame(){
@@ -23,15 +23,59 @@
 			// YOUR CODE GOES HERE
 		</script>
 		<style>
-			/* style parts of the legend, the controls and the elements in the stage appropriately */
-			#stage table {
-				padding: 0;
-				margin: 0;
-				border-collapse: collapse;
+			@font-face {
+			  font-family: 'Open Sans';
+			  font-style: normal;
+			  font-weight: 700;
+			  src: local('Open Sans Bold'), local('OpenSans-Bold'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/k3k702ZOKiLJc3WVjuplzHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
 			}
+			table, tbody, tfoot, thead, tr, th, td {
+				margin: 0;
+				padding: 0;
+				border: 0;
+				font-size: 100%;
+				font: inherit;
+				vertical-align: baseline;
+			}
+			body {
+				line-height: 1;
+				font-family: 'Open Sans','Lucida Sans Unicode','Lucida Grande',sans-serif;
+				color: #252525;			
+			}
+			table {
+				border-collapse: collapse;
+				border-spacing: 0;
+			}
+			/* style parts of the legend, the controls and the elements in the stage appropriately */
 
 			#stage table td {
 				border: 1px solid black;
+				height: 24px;
+				width: 24px;
+			}
+
+			#stage table td img{
+				width: 24px;
+				height: 24px;
+				padding: 0;
+				margin: 0;
+			}
+
+			.legend tr td img {
+				border: 1px solid black;
+				width: 24px;
+				height: 24px;
+			}
+
+			.legend {
+				border: 1px solid #BFBFBF;
+				margin-left: 10px;
+				background-color: #F1F1F1;
+			}
+
+			.legend tr td {
+				text-align: center;
+				padding: 5px;
 			}
 		</style>
 	</head>
@@ -53,7 +97,7 @@
 									<td> <img src="images/wall.jpeg" id="wallImage" /> </td>
 								</tr>
 								<tr>
-									<td> Empty <br/> Square </td>
+									<td> Empty <br> Square </td>
 									<td> Box </td>
 									<td> Player </td>
 									<td> Monster </td>
