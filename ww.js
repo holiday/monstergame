@@ -23,6 +23,7 @@ function Stage(width, height, numMonsters, stageElementID){
 	this.playerImageSrc=document.getElementById('playerImage').src;
 	this.boxImageSrc=document.getElementById('boxImage').src;
 	this.wallImageSrc=document.getElementById('wallImage').src;
+
 }
 
 // initialize an instance of the game
@@ -85,6 +86,14 @@ Stage.prototype.getStageId=function(x,y){
 	return "stage_" + y + "_" + x; 
 }
 
+Stage.prototype.getElement=function(id){
+	return document.getElementById(id);
+}
+
+Stage.prototype.getSrc=function(actor){
+	return document.getElementById(this.getStageId(actor.x, actor.y)).src;
+}
+
 Stage.prototype.addPlayer=function(player){
 	this.addActor(player);
 	this.player=player;
@@ -101,9 +110,10 @@ Stage.prototype.addActor=function(actor){
 
 Stage.prototype.removeActor=function(actor){
 	// Lookup javascript array manipulation (indexOf and splice).
+	console.log("Actor (%s,%s)", actor.x, actor.y);
 	var i = this.actors.indexOf(actor);
-	var actor = this.actors.splice(i, 1);
 	this.setImage(actor.x, actor.y, this.blankImageSrc);
+	this.actors.splice(i, 1);
 	return actor;
 }
 
@@ -139,6 +149,56 @@ function Player(stage, x, y){
 	this.y=y;
 	this.stage=stage; // the stage that this is on
 	this.stage.setImage(x,y,this.stage.playerImageSrc);
+
+	var self = this;
+	//keyevent listeners for directional keys
+	document.onkeydown = function(event){
+
+		switch(event.keyCode){
+			//forward
+			case 87:
+				console.log("Moving North...");
+				self.move(self, 0, -1);
+				break;
+			//backward
+			case 88:
+				console.log("Moving South...");
+				self.move(self, 0, 1);
+				break;
+			//right
+			case 68:
+				console.log("Moving East...");
+				self.move(self, 1, 0);
+				break;
+			//left
+			case 65:
+				console.log("Moving West...");
+				self.move(self, -1, 0);
+				break;
+			//north-east
+			case 69:
+				console.log("Nort East");
+				self.move(self, 1, -1);
+				break;
+			//north west
+			case 81:
+				console.log("North West");
+				self.move(self, -1, -1);
+				break;
+			//south east
+			case 67:
+				console.log("South East");
+				self.move(self, 1, 1);
+				break;
+			//south west
+			case 90:
+				console.log("South West");
+				self.move(self, -1, 1);
+				break;
+			default:
+				console.log("No direction for that key: " + event.keyCode);
+		}
+	}
 }
 
 // What we do at each tick of the clock
@@ -150,16 +210,39 @@ to move to get our work done. */
 Player.prototype.move=function(other, dx, dy){
 
 	// Where we are supposed to move. 
-	var newx=this.x+dx;
-	var newy=this.y+dy;
+	var newx=other.x+dx;
+	var newy=other.y+dy;
 
 	/* Determine if another Actor is occupying (newx, newy). If so,
 	this asks them to move. If they moved, then we can occupy the spot. Otherwise
 	we can't move. We return true if we moved and false otherwise. */
 
-	// We move both logically, and on the screen (change the images in the table)
+	var next  = this.stage.getActor(newx, newy);
 
-	return true;
+	//get the source of this item
+	var src = this.stage.getSrc(other);
+
+	//moving is possible since space is blank
+	if((next == null && this.stage.getElement(this.stage.getStageId(newx,newy)) != null)){
+		this.stage.removeActor(other);
+		other.x += dx;
+		other.y += dy;
+		this.stage.addActor(other);
+		this.stage.setImage(other.x, other.y, src);
+		return true;
+	}else{
+		console.log('Asking next item' + next);
+		if(this.move(next, dx, dy)){
+			this.stage.removeActor(other);
+			other.x += dx;
+			other.y += dy;
+			this.stage.addActor(other);
+			this.stage.setImage(other.x, other.y, src);
+			return true;
+		}
+	}
+	
+	return false;
 }
 // End Class Player
 
