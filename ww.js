@@ -311,9 +311,19 @@ Monster.prototype.step=function(){
 	// otherwise we should move
 	if(this.is_dead()){
 		this.stage.removeActor(this);
-		return;
 	}else{
-		//move
+		//choose one of the 8 position to move i.e. this.moves[0] through this.moves[7]
+		var rand = Math.round(Math.random()*7);
+		var move = this.stage.getActor(this.moves[rand][0], this.moves[rand][1]);
+
+		if(move == null){
+			this.stage.removeActor(this);
+			this.x = this.moves[rand][0];
+			this.y = this.moves[rand][1];
+			this.generateMoves();
+			this.stage.addActor(this);
+			this.stage.setImage(this.x, this.y, this.stage.monsterImageSrc);
+		}
 	}
 }
 
@@ -324,6 +334,7 @@ Monster.prototype.move=function(other, dx, dy){
 }
 
 Monster.prototype.generateMoves=function(){
+	this.moves=[];
 	for(j=this.y-1; j<=this.y+1; j++){
 		for(i=this.x-1; i<=this.x+1; i++){
 			if(j==this.y && i==this.x){
