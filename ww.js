@@ -128,6 +128,7 @@ Stage.prototype.setImage=function(x, y, src){
 // Do this by asking each of the actors to take a single step. Each actor should
 // have a step function.
 Stage.prototype.step=function(){
+	//console.log("Moving actors...");
 	for(var i=0;i<this.actors.length;i++){
 		this.actors[i].step();
 	}
@@ -300,12 +301,20 @@ function Monster(stage, x, y){
 	this.dy=-1;
 	this.stage=stage; // the stage that this is on
 	this.stage.setImage(x,y,this.stage.monsterImageSrc);
+	this.moves=[]; //stores all possible co-ordinates (x,y) around the monster
+	this.generateMoves();
 }
 
 // What we do at each tick of the clock
 Monster.prototype.step=function(){ 
 	// we may be dead, so we had better check if we should be removed from the stage
 	// otherwise we should move
+	if(this.is_dead()){
+		this.stage.removeActor(this);
+		return;
+	}else{
+		//move
+	}
 }
 
 // Move the way we wish to move. no one can push a monster around.
@@ -314,8 +323,29 @@ Monster.prototype.move=function(other, dx, dy){
 	return false;
 }
 
+Monster.prototype.generateMoves=function(){
+	for(j=this.y-1; j<=this.y+1; j++){
+		for(i=this.x-1; i<=this.x+1; i++){
+			if(j==this.y && i==this.x){
+				continue;
+			}
+			//add the move to the list
+			this.moves.push([i,j]);
+		}
+	}
+}
+
 // Return whether this is dead, that is, completely urrounded by non-player actors.
 Monster.prototype.is_dead=function(){
+	var actor;
+	for(var i=0; i<this.moves.length; i++){
+		actor = this.stage.getActor(this.moves[i][0], this.moves[i][1]);
+		//if the surrounding object is NOT a Wall or a Box, then the monster is still alive
+		if(!(actor instanceof Box || actor instanceof Wall)){
+			return false;
+		}
+	}
+	console.log("Killing monster at (%s, %s)", this.x, this.y);
 	return true;
 }
 // End Class Monster
