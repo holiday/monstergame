@@ -97,9 +97,11 @@ Stage.prototype.getSrc=function(actor){
 Stage.prototype.addPlayer=function(player){
 	this.addActor(player);
 	this.player=player;
+	this.setImage(player.x, player.y, this.playerImageSrc);
 }
 
 Stage.prototype.removePlayer=function(){
+	this.setImage(this.player.x, this.player.y, this.blankImageSrc);
 	this.removeActor(this.player);
 	this.player=null;
 }
@@ -110,7 +112,7 @@ Stage.prototype.addActor=function(actor){
 
 Stage.prototype.removeActor=function(actor){
 	// Lookup javascript array manipulation (indexOf and splice).
-	console.log("Actor (%s,%s)", actor.x, actor.y);
+	//console.log("Actor (%s,%s)", actor.x, actor.y);
 	var i = this.actors.indexOf(actor);
 	this.setImage(actor.x, actor.y, this.blankImageSrc);
 	this.actors.splice(i, 1);
@@ -216,26 +218,20 @@ Player.prototype.move=function(other, dx, dy){
 	/* Determine if another Actor is occupying (newx, newy). If so,
 	this asks them to move. If they moved, then we can occupy the spot. Otherwise
 	we can't move. We return true if we moved and false otherwise. */
-
 	var next  = this.stage.getActor(newx, newy);
 
-	//if we hit a wall or a monster
-	if(next instanceof Wall || next instanceof Monster){
-		return false;
-	}
-	//get the source of this item
-	var src = this.stage.getSrc(other);
-
-	//moving is possible since space is blank
-	if((next == null && this.stage.getElement(this.stage.getStageId(newx,newy)) != null) || this.move(next, dx, dy)){
-		this.stage.removeActor(other);
-		other.x += dx;
-		other.y += dy;
-		this.stage.addActor(other);
-		this.stage.setImage(other.x, other.y, src);
+	if(next == null || next.move(next, dx, dy)){
+		//must be an empty space
+		//remove other temporarily
+		this.stage.removePlayer();
+		//move the player
+		this.x += dx;
+		this.y += dy;
+		//add the player back
+		this.stage.addPlayer(this);
 		return true;
 	}
-	
+
 	return false;
 }
 // End Class Player
@@ -274,7 +270,23 @@ Box.prototype.step=function(){ return; }
 // return true if we moved, false otherwise.
 Box.prototype.move=function(other, dx, dy){
 	// See http://stackoverflow.com/questions/1249531/how-to-get-a-javascript-objects-class
-	return true;
+
+	//check the position we are about to move to to see if it is available
+	var next  = this.stage.getActor(other.x+dx, other.y+dy);
+
+	if(next == null || next.move(next, dx, dy)){
+		//must be an empty space
+		//remove other temporarily
+		this.stage.removeActor(this);
+		//move the player
+		this.x += dx;
+		this.y += dy;
+		//add the player back
+		this.stage.addActor(this);
+		this.stage.setImage(this.x, this.y, this.stage.boxImageSrc);
+		return true;
+	}
+	return false;
 }
 // End Class Box
 
@@ -299,11 +311,7 @@ Monster.prototype.step=function(){
 // Move the way we wish to move. no one can push a monster around.
 // return true if we moved, false otherwise
 Monster.prototype.move=function(other, dx, dy){
-	if(!(other===this))return false;
-	var newx=this.x+dx;
-	var newy=this.y+dy;
-
-	return true;
+	return false;
 }
 
 // Return whether this is dead, that is, completely urrounded by non-player actors.
