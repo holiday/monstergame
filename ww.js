@@ -8,7 +8,7 @@ function Stage(width, height, numMonsters, stageElementID){
 	this.height=height;
 
 	//probability distributions deciding the position (x,y) type 
-	this.monsters = 0.1; // 0-0.3
+	this.monsters = 0.05; // 0-0.3
 	this.boxes = 0.4; // 0.3-0.6
 	this.blanks = 1; // 0.6-1
 
@@ -107,7 +107,7 @@ Stage.prototype.removePlayer=function(){
 }
 
 Stage.prototype.addActor=function(actor){
-	this.actors.push(actor);
+	this.actors.unshift(actor);
 }
 
 Stage.prototype.removeActor=function(actor){

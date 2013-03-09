@@ -14,7 +14,7 @@
 			var interval;
 
 			function setupGame(){
-				stage=new Stage(10,10,10,"stage");
+				stage=new Stage(15,15,10,"stage");
 				stage.initialize();
 			}
 			function startGame(){
@@ -22,7 +22,7 @@
 				interval = setInterval(function() {
 					console.log("Stepping...");
 					stage.step();
-				}, 2000);
+				}, 1000);
 			}
 			function pauseGame(){
 				console.log("Pausing Game.." + interval);
