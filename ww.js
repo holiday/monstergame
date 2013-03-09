@@ -219,27 +219,21 @@ Player.prototype.move=function(other, dx, dy){
 
 	var next  = this.stage.getActor(newx, newy);
 
+	//if we hit a wall or a monster
+	if(next instanceof Wall || next instanceof Monster){
+		return false;
+	}
 	//get the source of this item
 	var src = this.stage.getSrc(other);
 
 	//moving is possible since space is blank
-	if((next == null && this.stage.getElement(this.stage.getStageId(newx,newy)) != null)){
+	if((next == null && this.stage.getElement(this.stage.getStageId(newx,newy)) != null) || this.move(next, dx, dy)){
 		this.stage.removeActor(other);
 		other.x += dx;
 		other.y += dy;
 		this.stage.addActor(other);
 		this.stage.setImage(other.x, other.y, src);
 		return true;
-	}else{
-		console.log('Asking next item' + next);
-		if(this.move(next, dx, dy)){
-			this.stage.removeActor(other);
-			other.x += dx;
-			other.y += dy;
-			this.stage.addActor(other);
-			this.stage.setImage(other.x, other.y, src);
-			return true;
-		}
 	}
 	
 	return false;
