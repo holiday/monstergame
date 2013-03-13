@@ -5,98 +5,73 @@
 		<meta HTTP-EQUIV="EXPIRES" CONTENT="-1">
 		<title>Computing Science 309 Warehouse Wars</title>
 		<script language="javascript" src="ww.js" > </script>
+		<link rel="stylesheet" type="text/css" href="styles.css">
+		<script>
 
-		<script> 
-			//the stage object
-			var stage=null;
-
-			//keeps track if the interval id
-			var interval;
+			var stage, width, height, monsters, speed = null;
 
 			function setupGame(){
-				stage=new Stage(15,15,10,"stage");
-				stage.initialize();
+				if(getSettings()){
+					stage=new Stage(width,height,monsters,speed,"stage");
+					stage.initialize();
+				}
 			}
 			function startGame(){
-				// YOUR CODE GOES HERE
-				interval = setInterval(function() {
-					console.log("Stepping...");
-					stage.step();
-				}, 1000);
+				if(stage==null){
+					//if the game was not setup yet
+					return;
+				}else if(stage.gameStarted){
+					//if the game has already started
+					stage.restart();
+				}else{
+					//if a current game is still running
+					stage.resume();
+				}
 			}
+
+			function restartGame(){
+				if(stage==null){return;}
+				stage.restart();
+			}
+
 			function pauseGame(){
-				console.log("Pausing Game.." + interval);
-				clearInterval(interval);
-				interval = null;
-				return false;
+				if(stage==null){return;}
+				stage.pause();
 			}
-			// YOUR CODE GOES HERE
+
+			function resumeGame(){
+				if(stage==null){return;}
+				stage.resume();
+			}
+
+			function getSettings(){
+				width = document.getElementById('gridWidth').value;
+				height = document.getElementById('gridHeight').value;
+				monsters = document.getElementById('numMonsters').value;
+				speed = document.getElementById('gameSpeed').value;
+
+				if(width > 0 && height > 0 && monsters > 0){
+					return true;
+				}else{
+					return false;
+				}
+			}
+
+			function isNumber(n) {
+			  return !isNaN(parseFloat(n)) && isFinite(n);
+			}
 		</script>
-		<style>
-			@font-face {
-			  font-family: 'Open Sans';
-			  font-style: normal;
-			  font-weight: 700;
-			  src: local('Open Sans Bold'), local('OpenSans-Bold'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/k3k702ZOKiLJc3WVjuplzHhCUOGz7vYGh680lGh-uXM.woff) format('woff');
-			}
-			table, tbody, tfoot, thead, tr, th, td {
-				margin: 0;
-				padding: 0;
-				border: 0;
-				font-size: 100%;
-				font: inherit;
-				vertical-align: baseline;
-			}
-			body {
-				line-height: 1;
-				font-family: 'Open Sans','Lucida Sans Unicode','Lucida Grande',sans-serif;
-				color: #252525;			
-			}
-			table {
-				border-collapse: collapse;
-				border-spacing: 0;
-			}
-			/* style parts of the legend, the controls and the elements in the stage appropriately */
-
-			#stage table td {
-				border: 1px solid black;
-				height: 24px;
-				width: 24px;
-			}
-
-			#stage table td img{
-				width: 24px;
-				height: 24px;
-				padding: 0;
-				margin: 0;
-			}
-
-			.legend tr td img {
-				border: 1px solid black;
-				width: 24px;
-				height: 24px;
-			}
-
-			.legend {
-				border: 1px solid #BFBFBF;
-				margin-left: 10px;
-				background-color: #F1F1F1;
-			}
-
-			.legend tr td {
-				text-align: center;
-				padding: 5px;
-			}
-		</style>
 	</head>
-	<body bgcolor=ffffff onload="setupGame(); startGame();" >
+	<body bgcolor="#FFF">
 		<center>
-			<h1>Warehouse Wars</h1>
+			<h1>Warehouse Survival</h1>
 			<table>
 				<tr>
 					<td> <div id="stage"></div></td> 
-					<td>
+					<td valign="middle">
 						<center>
+							<h2 id="timer"></h2>
+
 							<h2>Legend</h2>
 							<table class="legend">
 								<tr>
@@ -104,39 +79,43 @@
 									<td> <img src="images/emblem-package-2-24.png" id="boxImage" /> </td>
 									<td> <img src="images/face-cool-24.png" id="playerImage" /> </td>
 									<td> <img src="images/face-devil-grin-24.png" id="monsterImage" /> </td>
+									<td> <img src="images/face-devil-grin-purple-24.png" id="eliteMonsterImage" /> </td>
 									<td> <img src="images/wall.jpeg" id="wallImage" /> </td>
 								</tr>
 								<tr>
-									<td> Empty <br> Square </td>
+									<td> Empty</td>
 									<td> Box </td>
 									<td> Player </td>
 									<td> Monster </td>
+									<td> Elite </td>
 									<td> Wall </td>
 								</tr>
 							</table>
 							<h2>Controls</h2>
 							<table class="controls">
 								<tr>
-									<td><img src="images/north_west.svg" onclick="alert('clicked north west');" /></td>
-									<td><img src="images/north.svg" /></td>
-									<td><img src="images/north_east.svg" /></td>
+									<td><img src="images/north_west.svg" onclick="if(stage && stage.player){ stage.player.moveNorthWest();}" /></td>
+									<td><img src="images/north.svg" onclick="if(stage && stage.player){ stage.player.moveNorth();}" /></td>
+									<td><img src="images/north_east.svg" onclick="if(stage && stage.player){ stage.player.moveNorthEast();}"/></td>
 								</tr>
 								<tr>
-									<td><img src="images/west.svg" /></td>
+									<td><img src="images/west.svg" onclick="if(stage && stage.player){ stage.player.moveWest();}" /></td>
 									<td>&nbsp;</td>
-									<td><img src="images/east.svg" /></td>
+									<td><img src="images/east.svg" onclick="if(stage && stage.player){ stage.player.moveEast();}" /></td>
 								</tr>
 								<tr>
-									<td><img src="images/south_west.svg" /></td>
-									<td><img src="images/south.svg" /></td>
-									<td><img src="images/south_east.svg" /></td>
+									<td><img src="images/south_west.svg"  onclick="if(stage && stage.player){ stage.player.moveSouthWest();}" /></td>
+									<td><img src="images/south.svg" onclick="if(stage && stage.player){ stage.player.moveSouth();}" /></td>
+									<td><img src="images/south_east.svg" onclick="if(stage && stage.player){ stage.player.moveSouthEast();}" /></td>
 								</tr>
 							</table>
-
+							<h2>Game Options</h2>
 							<table class="controls">
 								<tr>
-									<td><input type="button" value="Pause" onclick="pauseGame();"/></td>
-									<td><input type="button" value="Resume" onclick="startGame();"/></td>
+									<td><a class="btn" href="#" onclick="pauseGame();">Pause</a></td>
+									<td><a class="btn" href="#" onclick="resumeGame();">Resume</a></td>
+									<td><a class="btn" href="#" onclick="restartGame();">Restart</a></td>
+									<td><a class="btn" id="settings-btn" href="#gameSettings" onclick="pauseGame();">Settings</a></td>
 								</tr>
 							</table>
 						</center>
@@ -144,6 +123,57 @@
 				</tr>
 			</table>
 		</center>
+
+		<!--Game Settings Modal-->
+		<div id="gameSettings" class="modal">
+			<div>
+				<a href="#close" title="Close" class="close" onclick="startGame();">X</a>
+				<h2>Game Settings</h2>
+				<p>Pick your poison! The purpose of the game is to kill as many monsters as you can in as little time 
+					as possible. The more monsters you choose the higher the chances of spawning 'Elite' monsters (the purple ones) i.e. 10% probability.</p>
+				<h3>Width</h3>
+				<input type="number" value="20" id="gridWidth" />
+				<h3>Height</h3>
+				<input type="number" value="20" id="gridHeight" />
+				<h3>Number of Monsters (cannot exceed stage)</h3>
+				<input type="number" value="5" id="numMonsters" />
+				<h3>Game Speed(milliseconds)</h3>
+				<input type="number" value="2000" id="gameSpeed" />
+				<hr/>
+				<a href="#close" onclick="setupGame(); startGame();" class="btn">Start Game!</a>
+			</div>
+		</div>
+
+		<!--Game Win Modal-->
+		<div id="gameWin" class="modal">
+			<div>
+				<a href="#close" title="Close" class="close">X</a>
+				<h2>Congratulations you have defeated the monsters.</h2>
+				<p>Try a more difficult level with more Smart Monsters!</p>
+				<p id="kills"></p>
+				<p id="lifetime-kills"></p>
+				<p id="lifetime-deaths"></p>
+				<p id="kill-rate"></p>
+			</div>
+		</div>
+
+		<!--Game Lost Modal-->
+		<div id="gameLost" class="modal">
+			<div>
+				<a href="#gameSettings" title="Close" class="close">X</a>
+				<h2>Your were killed :(</h2>
+				<ul>
+					<li><strong>Tip:</strong> Remember monsters can kill themselves by preventing eachother from moving</li>
+					<li><strong>Tip:</strong> While smart monsters are smart, they have a weakness (they do not use path detection), use this to your advantage</li>
+				</ul>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			//SCRIPTS that need to be run after the page has loaded
+			document.getElementById('settings-btn').click();
+		</script>
+
 	</body>
 </html>
 

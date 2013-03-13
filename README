@@ -1,0 +1,18 @@
+README
+------------------
+
+username: root
+password: toor
+
+- SmartMonsters spawn 10% of the total monsters supplied
+
+- Data from the form was not validated i.e. as a proof of concept, one would 
+	simply use some regex, limit the amount of monsters so the user cannot exceed the grid
+
+- Monsters CAN KILL EACHOTHER! This is not a bug, this was coded in. If a monster is surrounded
+	and has nowhere to go, it dies.
+
+- The popup window displaying the form uses elements of css3 transitions, it should count towards animation
+
+- I did not include a "quit" buttom simply because I do not know what it should do. I guess if the user clicks
+	quit, they could be redirected to the form? Im not sure.
